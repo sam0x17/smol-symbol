@@ -2,7 +2,13 @@
 name = "compile-symbol"
 version = "0.1.0"
 edition = "2021"
+authors = ["sam0x17"]
+description = "Provides globally unique, compile-time, 25-character, 128-bit symbols similar to the Symbol type in Crystal Lang."
+license = "MIT"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+proc-macro = true
 
 [dependencies]
+syn = "2"
+quote = "1"
