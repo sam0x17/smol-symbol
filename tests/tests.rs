@@ -36,6 +36,7 @@ fn symbol_type_example() {
     assert_eq!(sym1.to_string().as_str(), "hello_world");
 }
 
+#[docify::export]
 #[test]
 fn test_basics() {
     assert_eq!(s!(hello).to_string().as_str(), "hello");
