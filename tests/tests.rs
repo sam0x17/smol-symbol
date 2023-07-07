@@ -1,4 +1,24 @@
-use compile_symbol::s;
+use compile_symbol::{s, Symbol};
+
+#[docify::export]
+#[test]
+fn symbol_example() {
+    // Symbols can be stored in variables
+    let sym1 = s!(hello_world);
+
+    // Symbols can be used in const contexts
+    const SYM2: Symbol = s!(goodnight);
+
+    // Symbols can be compared with each other
+    let sym3 = s!(hello_world);
+    assert_eq!(sym1, sym3);
+    assert_ne!(sym1, SYM2);
+    assert_ne!(s!(this_is_a_triumph), s!(im_making_a_note_here));
+
+    // Symbols are 16 bytes
+    assert_eq!(std::mem::size_of_val(&sym1), 16);
+    assert_eq!(std::mem::size_of_val(&sym1), std::mem::size_of::<u128>());
+}
 
 #[test]
 fn test_basics() {

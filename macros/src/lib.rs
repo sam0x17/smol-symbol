@@ -1,3 +1,6 @@
+//! This crate houses the [`s!`] macro, used to create `Symbol`s at compile-time from a
+//! provided ident.
+
 use proc_macro::{TokenStream, TokenTree};
 
 fn bad_symbol_error() -> TokenStream {
@@ -6,6 +9,25 @@ fn bad_symbol_error() -> TokenStream {
             least one character.\")".parse().unwrap();
 }
 
+/// Generates a `Symbol` at compile-time from the provided ident.
+///
+/// Your ident should be constrained to a minimum of one character and a maximum of 25
+/// characters long, and may only use an alphabet of lowercase a-z as well as `_`. No other
+/// characters are allowed, and specifying other characters or breaking any of these rules will
+/// result in a compile error.
+///
+/// Example
+#[doc = docify::embed_run!("tests/tests.rs", symbol_example)]
+///
+/// At runtime, each unique`Symbol` is represented internally as a unique [`u128`] that encodes
+/// the bits of the symbol (5 bits per character), and enough information is preserved in this
+/// representation that the [`u128`] can be converted back into a [`String`] during at runtime,
+/// if desired.
+///
+/// These are great for scenarios where you need a human-readable globally unique identifier.
+/// The `Symbol` type is intended to be similar to the `Symbol` type in the Crystal programming
+/// language, with the additional capability that `Symbol`s can be created and runtime in
+/// addition to compile-time.
 #[proc_macro]
 pub fn s(tokens: TokenStream) -> TokenStream {
     let mut backing: u128 = 0;
