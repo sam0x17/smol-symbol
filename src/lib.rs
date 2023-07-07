@@ -1,6 +1,13 @@
+//! # Compile Symbol 💠
+//!
+//! [![Crates.io](https://img.shields.io/crates/v/compile-symbol)](https://crates.io/crates/compile-symbol)
+//! [![docs.rs](https://img.shields.io/docsrs/compile-symbol?label=docs)](https://docs.rs/compile-symbol/latest/compile-symbol/)
+//! [![Build Status](https://img.shields.io/github/actions/workflow/status/sam0x17/compile-symbol/ci.yaml)](https://github.com/sam0x17/compile-symbol/actions/workflows/ci.yaml?query=branch%3Amain)
+//! [![MIT License](https://img.shields.io/github/license/sam0x17/compile-symbol)](https://github.com/sam0x17/compile-symbol/blob/main/LICENSE)
+//!
 //! This crate provides the ability to create globally unique (based on input value),
-//! human-readable [`Symbol`]s at compile-time as well as at run-time, meant to be reminiscent
-//! of the `Symbol` type in the Crystal programming language.
+//! human-readable [`Symbol`]s at compile-time as well as at run-time, that are meant to be
+//! reminiscent of the `Symbol` type in the Crystal programming language.
 //!
 //! Where this crate differs is the alphabet and length of our [`Symbol`] is a bit more
 //! restrictive, allowing us to encode the entire text of each [`Symbol`] as a [`u128`]
@@ -11,12 +18,17 @@
 //! can also be created using the [`From<Into<String>>`] impl at runtime, though this is not as
 //! efficient as using the [`s!`] macro.
 //!
+//! The [`Symbol`] type can also be turned into a [`String`] via a convenient [`Into<String>`].
+//!
 //! ### Example
 #![doc = docify::embed_run!("tests/tests.rs", symbol_type_example)]
 //!
 //! See the docs for [`Symbol`] and [`s!`] for more detailed information.
 
 #![no_std]
+
+#[cfg(all(doc, feature = "generate-readme"))]
+docify::compile_markdown!("README.docify.md", "README.md");
 
 extern crate alloc;
 

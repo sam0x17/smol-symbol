@@ -13,3 +13,7 @@ license = "MIT"
 [dependencies]
 compile-symbol-macros = { path = "macros", version = "0.1.0" }
 docify = "0.1"
+
+[features]
+default = []
+generate-readme = []
