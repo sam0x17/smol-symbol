@@ -16,9 +16,6 @@ fn bad_symbol_error() -> TokenStream {
 /// characters are allowed, and specifying other characters or breaking any of these rules will
 /// result in a compile error.
 ///
-/// Example
-#[doc = docify::embed_run!("tests/tests.rs", symbol_example)]
-///
 /// At runtime, each unique`Symbol` is represented internally as a unique [`u128`] that encodes
 /// the bits of the symbol (5 bits per character), and enough information is preserved in this
 /// representation that the [`u128`] can be converted back into a [`String`] during at runtime,

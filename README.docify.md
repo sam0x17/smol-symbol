@@ -21,6 +21,6 @@ doing this at compile-time using the `s!` macro.
 The `Symbol` type can also be turned into a `String` via a convenient `Into<String>` impl.
 
 ### Example
-<!-- docify::embed!("tests/tests.rs", symbol_type_example) -->
+<!-- docify::embed!("tests/tests.rs", symbol_example) -->
 
 See the docs for `Symbol` and `s!` for more detailed information.

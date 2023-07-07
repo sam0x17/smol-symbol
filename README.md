@@ -23,18 +23,36 @@ The `Symbol` type can also be turned into a `String` via a convenient `Into<Stri
 ### Example
 ```rust
 #[test]
-fn symbol_type_example() {
-    // Symbols can be stored in variables and compared
+fn symbol_example() {
+    // Symbols can be stored in variables
     let sym1 = s!(hello_world);
-    assert_eq!(s!(hello_world), sym1);
-    assert_ne!(s!(goodbye), s!(hello));
 
     // Symbols can be used in const contexts
-    const MY_SYM: Symbol = s!(this_is_a_triumph);
-    assert_eq!(MY_SYM, s!(this_is_a_triumph));
+    const SYM2: Symbol = s!(goodnight);
 
-    // Symbols can be converted directly to Strings
-    assert_eq!(sym1.to_string().as_str(), "hello_world");
+    // Symbols can be compared with each other
+    let sym3 = s!(hello_world);
+    assert_eq!(sym1, sym3);
+    assert_ne!(sym1, SYM2);
+    assert_ne!(s!(this_is_a_triumph), s!(im_making_a_note_here));
+
+    // Symbols are 16 bytes
+    assert_eq!(std::mem::size_of_val(&sym1), 16);
+    assert_eq!(std::mem::size_of_val(&sym1), std::mem::size_of::<u128>());
+
+    // Symbols can even be created dynamically at runtime!
+    let some_string = String::from("some_random_string");
+    let dynamic_sym = Symbol::try_from(some_string).unwrap();
+    assert_eq!(dynamic_sym, s!(some_random_string));
+
+    // Can't be longer than 25 characters
+    assert!(Symbol::try_from("this_is_too_long_to_store_").is_err());
+    assert!(Symbol::try_from("this_is_just_short_enough").is_ok());
+
+    // Character alphabet is limited to lowercase a-z and _
+    assert!(Symbol::try_from("this-is-invalid").is_err());
+    assert!(Symbol::try_from("this is_invalid").is_err());
+    assert!(Symbol::try_from("this.is.invalid").is_err());
 }
 ```
 
