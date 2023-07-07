@@ -20,6 +20,22 @@ fn symbol_example() {
     assert_eq!(std::mem::size_of_val(&sym1), std::mem::size_of::<u128>());
 }
 
+#[docify::export]
+#[test]
+fn symbol_type_example() {
+    // Symbols can be stored in variables and compared
+    let sym1 = s!(hello_world);
+    assert_eq!(s!(hello_world), sym1);
+    assert_ne!(s!(goodbye), s!(hello));
+
+    // Symbols can be used in const contexts
+    const MY_SYM: Symbol = s!(this_is_a_triumph);
+    assert_eq!(MY_SYM, s!(this_is_a_triumph));
+
+    // Symbols can be converted directly to Strings
+    assert_eq!(sym1.to_string().as_str(), "hello_world");
+}
+
 #[test]
 fn test_basics() {
     assert_eq!(s!(hello).to_string().as_str(), "hello");

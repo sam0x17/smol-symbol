@@ -1,3 +1,21 @@
+//! This crate provides the ability to create globally unique (based on input value),
+//! human-readable [`Symbol`]s at compile-time as well as at run-time, meant to be reminiscent
+//! of the `Symbol` type in the Crystal programming language.
+//!
+//! Where this crate differs is the alphabet and length of our [`Symbol`] is a bit more
+//! restrictive, allowing us to encode the entire text of each [`Symbol`] as a [`u128`]
+//! internally. The only caveat is we are limited to 25 characters of length and an alphabet
+//! consisting of lowercase a-z as well as `_`.
+//!
+//! The [`Symbol`] type can be created at compile-time using the convenient [`s!`] macro, and
+//! can also be created using the [`From<Into<String>>`] impl at runtime, though this is not as
+//! efficient as using the [`s!`] macro.
+//!
+//! ### Example
+#![doc = docify::embed_run!("tests/tests.rs", symbol_type_example)]
+//!
+//! See the docs for [`Symbol`] and [`s!`] for more detailed information.
+
 #![no_std]
 
 extern crate alloc;
