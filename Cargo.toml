@@ -3,7 +3,7 @@ members = ["macros"]
 
 [package]
 name = "compile-symbol"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["sam0x17"]
 description = "Provides compile-time globally unique, 25-character, 128-bit symbols similar to the Symbol type in Crystal Lang."
@@ -11,7 +11,7 @@ keywords = ["symbol", "compile-time", "crystal", "macro", "unique"]
 license = "MIT"
 
 [dependencies]
-compile-symbol-macros = { path = "macros", version = "0.1.0" }
+compile-symbol-macros = { path = "macros", version = "0.1.1" }
 docify = "0.1"
 
 [features]
