@@ -5,6 +5,8 @@ edition = "2021"
 authors = ["sam0x17"]
 license = "MIT"
 description = "support macros for compile-symbol"
+repository = "https://github.com/sam0x17/compile-symbol"
+homepage = "https://sam0x17.dev"
 
 [lib]
 proc-macro = true

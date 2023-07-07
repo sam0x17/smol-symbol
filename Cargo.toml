@@ -8,6 +8,8 @@ edition = "2021"
 authors = ["sam0x17"]
 description = "Provides compile-time globally unique, 25-character, 128-bit symbols similar to the Symbol type in Crystal Lang."
 keywords = ["symbol", "compile-time", "crystal", "macro", "unique"]
+repository = "https://github.com/sam0x17/compile-symbol"
+homepage = "https://sam0x17.dev"
 license = "MIT"
 
 [dependencies]
