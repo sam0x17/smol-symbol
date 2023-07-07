@@ -1,0 +1,10 @@
+[package]
+name = "compile-symbol-macros"
+version = "0.1.0"
+edition = "2021"
+authors = ["sam0x17"]
+license = "MIT"
+description = "support macros for compile-symbol"
+
+[lib]
+proc-macro = true
