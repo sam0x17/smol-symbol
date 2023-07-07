@@ -34,10 +34,7 @@ pub fn s(tokens: TokenStream) -> TokenStream {
     let mut iter = tokens.into_iter();
     let Some(TokenTree::Ident(ident)) = iter.next() else { return bad_symbol_error() };
     let ident = ident.to_string();
-    if ident.is_empty() {
-        return bad_symbol_error();
-    }
-    if ident.len() > 25 {
+    if ident.is_empty() || ident.len() > 25 {
         return bad_symbol_error();
     }
     for c in ident.chars() {

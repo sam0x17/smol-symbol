@@ -18,6 +18,20 @@ fn symbol_example() {
     // Symbols are 16 bytes
     assert_eq!(std::mem::size_of_val(&sym1), 16);
     assert_eq!(std::mem::size_of_val(&sym1), std::mem::size_of::<u128>());
+
+    // Symbols can even be created dynamically at runtime!
+    let some_string = String::from("some_random_string");
+    let dynamic_sym = Symbol::try_from(some_string).unwrap();
+    assert_eq!(dynamic_sym, s!(some_random_string));
+
+    // Can't be longer than 25 characters
+    assert!(Symbol::try_from("this_is_too_long_to_store_").is_err());
+    assert!(Symbol::try_from("this_is_just_short_enough").is_ok());
+
+    // Character alphabet is limited to lowercase a-z and _
+    assert!(Symbol::try_from("this-is-invalid").is_err());
+    assert!(Symbol::try_from("this is_invalid").is_err());
+    assert!(Symbol::try_from("this.is.invalid").is_err());
 }
 
 #[docify::export]

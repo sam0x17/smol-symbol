@@ -39,8 +39,8 @@ const ALPHABET_LEN: u128 = ALPHABET.len() as u128;
 /// [`Symbol`]s can be created _at compile time_ using the powerful [`s!`] macro. This is the
 /// preferred way of creating symbols as it incurs zero overhead at runtime.
 ///
-/// [`Symbol`]s can also be created at runtime, albeit slower, via a convenient
-/// [`From<Into<String>>`] impl on [`Symbol`].
+/// [`Symbol`]s can also be created at runtime, albeit slower than using the [`s!`] macro, via
+/// a convenient [`From<AsRef<str>>`] impl on [`Symbol`].
 ///
 /// The [`Symbol`] struct itself impls many useful traits, including [`Copy`], [`Clone`],
 /// [`Eq`], [`Ord`], [`Hash`], [`Display`], [`Debug`], [`Send`], and [`Sync`], allowing for a
@@ -70,9 +70,87 @@ impl Symbol {
     }
 }
 
-impl From<&Symbol> for String {
-    fn from(value: &Symbol) -> Self {
-        (*value).into()
+pub struct SymbolParsingError;
+
+impl Debug for SymbolParsingError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        f.write_str(
+            "To be a valid `Symbol`, the provided string must be at least one character long, \
+            at most 25 characters long, and consist only of lowercase a-z characters or `_`. \
+            No other characters are permitted, nor is whitespace of any kind.",
+        )
+    }
+}
+
+impl TryFrom<&str> for Symbol {
+    type Error = SymbolParsingError;
+
+    /// Attempts to interpret the provided string as a valid [`Symbol`]. The usual parsing
+    /// rules for [`Symbol`]s apply, namely:
+    /// - At least one character
+    /// - At most 25 characters
+    /// - only lowercase a-z and `_` allowed
+    /// - no whitespace
+    ///
+    /// If any of these requirements are violated, a generic [`SymbolParsingError`] is returned
+    /// and parsing will abort.
+    fn try_from(value: &str) -> core::result::Result<Self, Self::Error> {
+        if value.is_empty() || value.len() > 25 {
+            return Err(SymbolParsingError {});
+        }
+        let mut data: u128 = 0;
+        for c in value.chars() {
+            let val = match c {
+                '-' => return Err(SymbolParsingError {}),
+                'a' => 1,
+                'b' => 2,
+                'c' => 3,
+                'd' => 4,
+                'e' => 5,
+                'f' => 6,
+                'g' => 7,
+                'h' => 8,
+                'i' => 9,
+                'j' => 10,
+                'k' => 11,
+                'l' => 12,
+                'm' => 13,
+                'n' => 14,
+                'o' => 15,
+                'p' => 16,
+                'q' => 17,
+                'r' => 18,
+                's' => 19,
+                't' => 20,
+                'u' => 21,
+                'v' => 22,
+                'w' => 23,
+                'x' => 24,
+                'y' => 25,
+                'z' => 26,
+                '_' => 27,
+                _ => return Err(SymbolParsingError {}),
+            };
+            data *= 28;
+            data += val;
+        }
+        Ok(Symbol { data })
+    }
+}
+
+impl TryFrom<String> for Symbol {
+    type Error = SymbolParsingError;
+
+    fn try_from(value: String) -> core::result::Result<Self, Self::Error> {
+        Symbol::try_from(value.as_str())
+    }
+}
+
+impl TryFrom<&String> for Symbol {
+    type Error = SymbolParsingError;
+
+    fn try_from(value: &String) -> core::result::Result<Self, Self::Error> {
+        Symbol::try_from(value.as_str())
     }
 }
 
@@ -90,6 +168,12 @@ impl From<Symbol> for String {
             }
         }
         chars.into_iter().rev().collect()
+    }
+}
+
+impl From<&Symbol> for String {
+    fn from(value: &Symbol) -> Self {
+        (*value).into()
     }
 }
 
