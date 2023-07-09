@@ -1,4 +1,4 @@
-use compile_symbol::{s, Symbol};
+use smol_symbol::{s, Symbol};
 
 #[docify::export]
 #[test]

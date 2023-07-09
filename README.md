@@ -1,14 +1,9 @@
-# Compile Symbol 💠
+# smol-symbol 💠
 
-[![Crates.io](https://img.shields.io/crates/v/compile-symbol)](https://crates.io/crates/compile-symbol)
-[![docs.rs](https://img.shields.io/docsrs/compile-symbol?label=docs)](https://docs.rs/compile-symbol/latest/compile-symbol/)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/sam0x17/compile-symbol/ci.yaml)](https://github.com/sam0x17/compile-symbol/actions/workflows/ci.yaml?query=branch%3Amain)
-[![MIT License](https://img.shields.io/github/license/sam0x17/compile-symbol)](https://github.com/sam0x17/compile-symbol/blob/main/LICENSE)
-
-
-NOTE: This crate has been renamed to [smol-symbol](https://crates.io/crates/smol-symbol), and
-all future updates can be found on that crate. You should use `smol-symbol` instead of
-`compile-symbol` going forward.
+[![Crates.io](https://img.shields.io/crates/v/smol-symbol)](https://crates.io/crates/smol-symbol)
+[![docs.rs](https://img.shields.io/docsrs/smol-symbol?label=docs)](https://docs.rs/smol-symbol/latest/smol-symbol/)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/sam0x17/smol-symbol/ci.yaml)](https://github.com/sam0x17/smol-symbol/actions/workflows/ci.yaml?query=branch%3Amain)
+[![MIT License](https://img.shields.io/github/license/sam0x17/smol-symbol)](https://github.com/sam0x17/smol-symbol/blob/main/LICENSE)
 
 This crate provides the ability to create globally unique (based on input value),
 human-readable `Symbol`s at compile-time as well as at run-time, that are meant to be

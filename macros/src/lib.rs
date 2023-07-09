@@ -69,7 +69,7 @@ pub fn s(tokens: TokenStream) -> TokenStream {
         backing *= 28;
         backing += val;
     }
-    format!("::compile_symbol::Symbol::from_raw({backing}u128)")
+    format!("::smol_symbol::Symbol::from_raw({backing}u128)")
         .as_str()
         .parse()
         .unwrap()

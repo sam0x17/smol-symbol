@@ -1,11 +1,11 @@
 [package]
-name = "compile-symbol-macros"
+name = "smol-symbol-macros"
 version = "0.1.4"
 edition = "2021"
 authors = ["sam0x17"]
 license = "MIT"
-description = "support macros for compile-symbol"
-repository = "https://github.com/sam0x17/compile-symbol"
+description = "support macros for smol-symbol"
+repository = "https://github.com/sam0x17/smol-symbol"
 homepage = "https://sam0x17.dev"
 
 [lib]
