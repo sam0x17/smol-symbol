@@ -5,6 +5,11 @@
 [![Build Status](https://img.shields.io/github/actions/workflow/status/sam0x17/compile-symbol/ci.yaml)](https://github.com/sam0x17/compile-symbol/actions/workflows/ci.yaml?query=branch%3Amain)
 [![MIT License](https://img.shields.io/github/license/sam0x17/compile-symbol)](https://github.com/sam0x17/compile-symbol/blob/main/LICENSE)
 
+
+NOTE: This crate has been renamed to [smol-symbol](https://crates.io/crates/smol-symbol), and
+all future updates can be found on that crate. You should use `smol-symbol` instead of
+`compile-symbol` going forward.
+
 This crate provides the ability to create globally unique (based on input value),
 human-readable `Symbol`s at compile-time as well as at run-time, that are meant to be
 reminiscent of the `Symbol` type in the Crystal programming language.
