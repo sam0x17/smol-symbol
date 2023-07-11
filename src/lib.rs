@@ -62,7 +62,7 @@ pub type Symbol = CustomSymbol<{ DefaultAlphabet::LEN }, DefaultAlphabet>;
 pub trait Alphabet<const N: usize>: Copy + Clone + PartialEq + Eq {
     const ALPHABET: [char; N];
     const ALPHABET_INVERTED: Map<char, usize>;
-    const LEN: usize;
+    const LEN: usize = N;
 }
 
 #[derive(Copy, Clone, PartialEq, Eq)]
@@ -103,8 +103,6 @@ impl Alphabet<27> for DefaultAlphabet {
         'z' => 26,
         '_' => 27,
     };
-
-    const LEN: usize = 27;
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -133,6 +131,9 @@ impl<const N: usize, A: Alphabet<N>> CustomSymbol<N, A> {
     }
 
     const ALPHABET: [char; N] = A::ALPHABET;
+    const ALPHABET_INVERSED: Map<char, usize> = A::ALPHABET_INVERTED;
+    const LEN_U218: u128 = A::LEN as u128;
+    const MAX_SYMBOL_LEN: usize = 128 / ceil_log2(A::LEN + 1);
 }
 
 pub struct SymbolParsingError;
@@ -160,43 +161,16 @@ impl<const N: usize, A: Alphabet<N>> TryFrom<&str> for CustomSymbol<N, A> {
     /// If any of these requirements are violated, a generic [`SymbolParsingError`] is returned
     /// and parsing will abort.
     fn try_from(value: &str) -> core::result::Result<Self, Self::Error> {
-        if value.is_empty() || value.len() > 25 {
+        if value.is_empty() || value.len() > CustomSymbol::<N, A>::MAX_SYMBOL_LEN {
             return Err(SymbolParsingError {});
         }
         let mut data: u128 = 0;
         for c in value.chars() {
-            let val = match c {
-                'a' => 1,
-                'b' => 2,
-                'c' => 3,
-                'd' => 4,
-                'e' => 5,
-                'f' => 6,
-                'g' => 7,
-                'h' => 8,
-                'i' => 9,
-                'j' => 10,
-                'k' => 11,
-                'l' => 12,
-                'm' => 13,
-                'n' => 14,
-                'o' => 15,
-                'p' => 16,
-                'q' => 17,
-                'r' => 18,
-                's' => 19,
-                't' => 20,
-                'u' => 21,
-                'v' => 22,
-                'w' => 23,
-                'x' => 24,
-                'y' => 25,
-                'z' => 26,
-                '_' => 27,
-                _ => return Err(SymbolParsingError {}),
+            let Some(val) = CustomSymbol::<N, A>::ALPHABET_INVERSED.get(&c) else {
+                return Err(SymbolParsingError {})
             };
-            data *= 28;
-            data += val;
+            data *= CustomSymbol::<N, A>::LEN_U218 + 1;
+            data += *val as u128;
         }
         Ok(CustomSymbol {
             _alphabet: PhantomData,
@@ -258,4 +232,14 @@ impl<const N: usize, A: Alphabet<N>> Display for CustomSymbol<N, A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.write_str(&self.to_string())
     }
+}
+
+pub const fn ceil_log2(x: usize) -> usize {
+    let mut n = x;
+    let mut log = 0;
+    while n > 1 {
+        n = (n + 1) / 2; // ceil division
+        log += 1;
+    }
+    log
 }

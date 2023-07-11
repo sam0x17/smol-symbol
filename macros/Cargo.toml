@@ -12,4 +12,7 @@ homepage = "https://sam0x17.dev"
 proc-macro = true
 
 [dependencies]
+derive-syn-parse = "0.1"
 docify = "0.1"
+syn = { version = "2", features = ["full"] }
+quote = "1"

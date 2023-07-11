@@ -1,12 +1,23 @@
 //! This crate houses the [`s!`] macro, used to create `Symbol`s at compile-time from a
 //! provided ident.
 
-use proc_macro::{TokenStream, TokenTree};
+use derive_syn_parse::Parse;
+use proc_macro::TokenStream;
+use quote::quote;
+use syn::{parse_macro_input, parse_quote, Ident, Token, TypePath};
 
 fn bad_symbol_error() -> TokenStream {
     return "compile_error!(\"s!() takes a single ident, constrained to a maximum of 25 characters long using an \
             alphabet of lowercase a-z as well as `_`. No other characters are allowed, and you must specify at \
             least one character.\")".parse().unwrap();
+}
+
+#[derive(Parse)]
+struct SymbolInput {
+    ident: Ident,
+    _comma: Option<Token![,]>,
+    #[parse_if(_comma.is_some())]
+    alphabet_path: Option<TypePath>,
 }
 
 /// Generates a `Symbol` at compile-time from the provided ident.
@@ -27,13 +38,16 @@ fn bad_symbol_error() -> TokenStream {
 /// addition to compile-time.
 #[proc_macro]
 pub fn s(tokens: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(tokens as SymbolInput);
     let mut backing: u128 = 0;
-    let mut iter = tokens.into_iter();
-    let Some(TokenTree::Ident(ident)) = iter.next() else { return bad_symbol_error() };
-    let ident = ident.to_string();
+    let ident = input.ident.to_string();
     if ident.is_empty() || ident.len() > 25 {
         return bad_symbol_error();
     }
+    let alphabet_path = input
+        .alphabet_path
+        .unwrap_or_else(|| parse_quote!(::smol_symbol::Symbol));
+    let alphabet_inversed = quote!(#alphabet_path::ALPHABET_INVERTED);
     for c in ident.chars() {
         let val = match c {
             '-' => 0, // not used
@@ -69,8 +83,5 @@ pub fn s(tokens: TokenStream) -> TokenStream {
         backing *= 28;
         backing += val;
     }
-    format!("::smol_symbol::Symbol::from_raw({backing}u128)")
-        .as_str()
-        .parse()
-        .unwrap()
+    quote!(::smol_symbol::Symbol::from_raw(#backing)).into()
 }
