@@ -6,7 +6,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, parse_quote, Ident, Token, TypePath};
 
-fn bad_symbol_error() -> TokenStream {
+fn _bad_symbol_error() -> TokenStream {
     return "compile_error!(\"s!() takes a single ident, constrained to a maximum of 25 characters long using an \
             alphabet of lowercase a-z as well as `_`. No other characters are allowed, and you must specify at \
             least one character.\")".parse().unwrap();
@@ -39,51 +39,15 @@ struct SymbolInput {
 #[proc_macro]
 pub fn s(tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as SymbolInput);
-    let mut backing: u128 = 0;
     let ident = input.ident.to_string();
-    if ident.is_empty() || ident.len() > 25 {
-        return bad_symbol_error();
-    }
+    let chars = ident.chars();
     let alphabet_path = input
         .alphabet_path
-        .unwrap_or_else(|| parse_quote!(::smol_symbol::Symbol));
-    let alphabet_inversed = quote!(#alphabet_path::ALPHABET_INVERTED);
-    for c in ident.chars() {
-        let val = match c {
-            '-' => 0, // not used
-            'a' => 1,
-            'b' => 2,
-            'c' => 3,
-            'd' => 4,
-            'e' => 5,
-            'f' => 6,
-            'g' => 7,
-            'h' => 8,
-            'i' => 9,
-            'j' => 10,
-            'k' => 11,
-            'l' => 12,
-            'm' => 13,
-            'n' => 14,
-            'o' => 15,
-            'p' => 16,
-            'q' => 17,
-            'r' => 18,
-            's' => 19,
-            't' => 20,
-            'u' => 21,
-            'v' => 22,
-            'w' => 23,
-            'x' => 24,
-            'y' => 25,
-            'z' => 26,
-            '_' => 27,
-            _ => return bad_symbol_error(),
-        };
-        backing *= 28;
-        backing += val;
+        .unwrap_or_else(|| parse_quote!(::smol_symbol::DefaultAlphabet));
+    quote! {
+        #alphabet_path::parse_chars_panic(&[#(#chars),*])
     }
-    quote!(::smol_symbol::Symbol::from_raw(#backing)).into()
+    .into()
 }
 
 #[derive(Parse)]
@@ -110,6 +74,11 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
         let i = i + 1;
         quote!(#c => #i)
     });
+    let alphabet_map_u128 = alphabet.iter().enumerate().map(|(i, c)| {
+        let i = i + 1;
+        let i = i as u128;
+        quote!(#c => #i)
+    });
     quote! {
         #[derive(Copy, Clone, PartialEq, Eq)]
         pub struct #name {}
@@ -122,6 +91,44 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
             };
         }
 
+        impl #name {
+            pub const fn invert_char(c: char) -> core::result::Result<u128, #crate_path::SymbolParsingError> {
+                let i = match c {
+                    #(#alphabet_map_u128),*,
+                    _ => return Err(#crate_path::SymbolParsingError {}),
+                };
+                Ok(i as u128)
+            }
+
+            pub const fn parse_chars(chars: &[char]) -> core::result::Result<
+                #crate_path::CustomSymbol<#alphabet_len, #name>,
+                SymbolParsingError
+            > {
+                let mut i = 0;
+                let mut data: u128 = 0;
+                while i < chars.len() {
+                    let c = chars[i];
+                    let inverted = Self::invert_char(c);
+                    data *= CustomSymbol::<#alphabet_len, #name>::LEN_U218 + 1;
+                    data += match inverted {
+                        Ok(val) => val,
+                        Err(err) => return Err(err),
+                    };
+                    i += 1;
+                }
+                Ok(CustomSymbol {
+                    _alphabet: PhantomData,
+                    data,
+                })
+            }
+
+            pub const fn parse_chars_panic(chars: &[char]) -> #crate_path::CustomSymbol<#alphabet_len, #name> {
+                match Self::parse_chars(chars) {
+                    Ok(sym) => sym,
+                    Err(err) => panic!("invalid symbol!"),
+                }
+            }
+        }
     }
     .into()
 }
