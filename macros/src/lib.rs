@@ -85,3 +85,43 @@ pub fn s(tokens: TokenStream) -> TokenStream {
     }
     quote!(::smol_symbol::Symbol::from_raw(#backing)).into()
 }
+
+#[derive(Parse)]
+struct CustomAlphabetInput {
+    name: Ident,
+    _comma: Token![,],
+    alphabet: Ident,
+}
+
+#[proc_macro]
+pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
+    let crate_path = match std::env::var("CARGO_PKG_NAME") {
+        Ok(crate_path) => match crate_path.as_str() {
+            "smol-symbol" => quote!(crate),
+            _ => quote!(::smol_symbol),
+        },
+        _ => quote!(::smol_symbol),
+    };
+    let input = parse_macro_input!(tokens as CustomAlphabetInput);
+    let name = input.name;
+    let alphabet = input.alphabet.to_string().chars().collect::<Vec<char>>();
+    let alphabet_len = alphabet.len();
+    let alphabet_map = alphabet.iter().enumerate().map(|(i, c)| {
+        let i = i + 1;
+        quote!(#c => #i)
+    });
+    quote! {
+        #[derive(Copy, Clone, PartialEq, Eq)]
+        pub struct #name {}
+
+        impl #crate_path::Alphabet<#alphabet_len> for #name {
+            const ALPHABET: [char; #alphabet_len] = [#(#alphabet),*];
+
+            const ALPHABET_INVERTED: #crate_path::__private::Map<char, usize> = #crate_path::__private::phf_map! {
+                #(#alphabet_map),*
+            };
+        }
+
+    }
+    .into()
+}
