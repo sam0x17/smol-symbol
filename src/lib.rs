@@ -5,7 +5,7 @@
 //! [![Build Status](https://img.shields.io/github/actions/workflow/status/sam0x17/smol-symbol/ci.yaml)](https://github.com/sam0x17/smol-symbol/actions/workflows/ci.yaml?query=branch%3Amain)
 //! [![MIT License](https://img.shields.io/github/license/sam0x17/smol-symbol)](https://github.com/sam0x17/smol-symbol/blob/main/LICENSE)
 //!
-//! This crate provides the ability to create globally unique (based on input value),
+//! This crate provides the ability to create globally unique (per input value),
 //! human-readable [`Symbol`]s at compile-time as well as at run-time, that are meant to be
 //! reminiscent of the `Symbol` type in the Crystal programming language.
 //!
@@ -19,6 +19,10 @@
 //! efficient as using the [`s!`] macro.
 //!
 //! The [`Symbol`] type can also be turned into a [`String`] via a convenient [`Into<String>`].
+//!
+//! We also provide the ability to define custom alphabets via a handy [`custom_alphabet!`]
+//! macro, allowing you to alter these restrictions directly (smaller alphabet = larger max
+//! length for a symbol).
 //!
 //! ### Example
 #![doc = docify::embed_run!("tests/tests.rs", symbol_type_example)]
