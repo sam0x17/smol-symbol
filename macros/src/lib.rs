@@ -70,15 +70,12 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
     let name = input.name;
     let alphabet = input.alphabet.to_string().chars().collect::<Vec<char>>();
     let alphabet_len = alphabet.len();
-    let alphabet_map = alphabet.iter().enumerate().map(|(i, c)| {
-        let i = i + 1;
-        quote!(#c => #i)
-    });
     let alphabet_map_u128 = alphabet.iter().enumerate().map(|(i, c)| {
         let i = i + 1;
         let i = i as u128;
         quote!(#c => #i)
     });
+    let alphabet_map_u128_clone = alphabet_map_u128.clone();
     quote! {
         #[derive(Copy, Clone, PartialEq, Eq)]
         pub struct #name {}
@@ -86,15 +83,19 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
         impl #crate_path::Alphabet<#alphabet_len> for #name {
             const ALPHABET: [char; #alphabet_len] = [#(#alphabet),*];
 
-            const ALPHABET_INVERTED: #crate_path::__private::Map<char, usize> = #crate_path::__private::phf_map! {
-                #(#alphabet_map),*
-            };
+            fn invert_char(c: char) -> core::result::Result<u128, #crate_path::SymbolParsingError> {
+                let i = match c {
+                    #(#alphabet_map_u128),*,
+                    _ => return Err(#crate_path::SymbolParsingError {}),
+                };
+                Ok(i as u128)
+            }
         }
 
         impl #name {
             pub const fn invert_char(c: char) -> core::result::Result<u128, #crate_path::SymbolParsingError> {
                 let i = match c {
-                    #(#alphabet_map_u128),*,
+                    #(#alphabet_map_u128_clone),*,
                     _ => return Err(#crate_path::SymbolParsingError {}),
                 };
                 Ok(i as u128)
@@ -109,7 +110,7 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
                 while i < chars.len() {
                     let c = chars[i];
                     let inverted = Self::invert_char(c);
-                    data *= CustomSymbol::<#alphabet_len, #name>::LEN_U218 + 1;
+                    data *= #name::LEN_U218 + 1;
                     data += match inverted {
                         Ok(val) => val,
                         Err(err) => return Err(err),

@@ -15,7 +15,6 @@ license = "MIT"
 [dependencies]
 smol-symbol-macros = { path = "macros", version = "0.1.5" }
 docify = "0.2"
-phf = { version = "0.11", features = ["macros"], default-features = false }
 
 [features]
 default = []

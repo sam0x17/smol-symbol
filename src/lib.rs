@@ -37,7 +37,6 @@ use core::{
     fmt::{Debug, Display, Formatter, Result},
     marker::PhantomData,
 };
-use phf::Map;
 
 pub use smol_symbol_macros::*;
 
@@ -61,8 +60,11 @@ pub type Symbol = CustomSymbol<{ DefaultAlphabet::LEN }, DefaultAlphabet>;
 
 pub trait Alphabet<const N: usize>: Copy + Clone + PartialEq + Eq {
     const ALPHABET: [char; N];
-    const ALPHABET_INVERTED: Map<char, usize>;
     const LEN: usize = N;
+    const LEN_U218: u128 = Self::LEN as u128;
+    const MAX_SYMBOL_LEN: usize = 128 / ceil_log2(Self::LEN + 1);
+
+    fn invert_char(c: char) -> core::result::Result<u128, SymbolParsingError>;
 }
 
 custom_alphabet!(DefaultAlphabet, abcdefghijklmnopqrstuvwxyz_);
@@ -90,11 +92,6 @@ impl<const N: usize, A: Alphabet<N>> CustomSymbol<N, A> {
     pub fn to_string(&self) -> String {
         self.into()
     }
-
-    const ALPHABET: [char; N] = A::ALPHABET;
-    const ALPHABET_INVERSED: Map<char, usize> = A::ALPHABET_INVERTED;
-    const LEN_U218: u128 = A::LEN as u128;
-    const MAX_SYMBOL_LEN: usize = 128 / ceil_log2(A::LEN + 1);
 }
 
 pub struct SymbolParsingError;
@@ -122,16 +119,13 @@ impl<const N: usize, A: Alphabet<N>> TryFrom<&str> for CustomSymbol<N, A> {
     /// If any of these requirements are violated, a generic [`SymbolParsingError`] is returned
     /// and parsing will abort.
     fn try_from(value: &str) -> core::result::Result<Self, Self::Error> {
-        if value.is_empty() || value.len() > CustomSymbol::<N, A>::MAX_SYMBOL_LEN {
+        if value.is_empty() || value.len() > A::MAX_SYMBOL_LEN {
             return Err(SymbolParsingError {});
         }
         let mut data: u128 = 0;
         for c in value.chars() {
-            let Some(val) = CustomSymbol::<N, A>::ALPHABET_INVERSED.get(&c) else {
-                return Err(SymbolParsingError {})
-            };
-            data *= CustomSymbol::<N, A>::LEN_U218 + 1;
-            data += *val as u128;
+            data *= A::LEN_U218 + 1;
+            data += A::invert_char(c)?;
         }
         Ok(CustomSymbol {
             _alphabet: PhantomData,
@@ -160,12 +154,12 @@ impl<const N: usize, A: Alphabet<N>> From<CustomSymbol<N, A>> for String {
     fn from(value: CustomSymbol<N, A>) -> Self {
         let mut n = value.data;
         let mut chars: Vec<char> = Vec::new();
-        let len = (CustomSymbol::<N, A>::ALPHABET.len() + 1) as u128;
+        let len = (A::ALPHABET.len() + 1) as u128;
         loop {
             let i = n % len;
             n -= i;
             n /= len;
-            chars.push(CustomSymbol::<N, A>::ALPHABET[i as usize - 1]);
+            chars.push(A::ALPHABET[i as usize - 1]);
             if n == 0 {
                 break;
             }
@@ -203,9 +197,4 @@ pub const fn ceil_log2(x: usize) -> usize {
         log += 1;
     }
     log
-}
-
-#[doc(hidden)]
-pub mod __private {
-    pub use phf::*;
 }
