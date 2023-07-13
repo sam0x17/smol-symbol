@@ -1,4 +1,5 @@
 use smol_symbol::{s, Symbol};
+use smol_symbol_macros::custom_alphabet;
 
 #[docify::export]
 #[test]
@@ -93,4 +94,32 @@ fn test_debug() {
         format!("{:?}", s!(this_is_a_symbol)),
         "Symbol { data: 103472738014991221645200, symbol: \"this_is_a_symbol\" }"
     );
+}
+
+use smol_symbol::*;
+
+custom_alphabet!(
+    Ferris,
+    ABCDEFGHIJKLMNOPQRSTVWXYZ東京_abcdefghijklmnopqrstuvwxyz12345678910
+);
+custom_alphabet!(Short, hello_world);
+
+#[test]
+fn test_custom_alphabets() {
+    assert_eq!(Ferris::MAX_SYMBOL_LEN, 18);
+    assert_eq!(Short::MAX_SYMBOL_LEN, 32);
+    let sym1 = s!(hello東_world京_33, Ferris);
+    let sym2 = s!(hello_world, Ferris);
+    let sym3 = s!(hello_world, Short);
+    let sym4 = s!(we_hold_world, Short);
+    assert_eq!(sym1, s!(hello東_world京_33, Ferris));
+    assert_ne!(sym1, sym2);
+    assert_eq!(sym3, s!(hello_world, Short));
+    assert_ne!(sym3, sym4);
+    let sym2_u128: u128 = sym2.into();
+    let sym3_u128: u128 = sym3.into();
+    assert_ne!(sym2_u128, sym3_u128);
+    assert!(sym3_u128 < sym2_u128);
+    let sym5 = s!(HELLO_WORLD, Ferris);
+    assert_ne!(sym2, sym5);
 }

@@ -94,6 +94,12 @@ impl<const N: usize, A: Alphabet<N>> CustomSymbol<N, A> {
     }
 }
 
+impl<const N: usize, A: Alphabet<N>> From<CustomSymbol<N, A>> for u128 {
+    fn from(value: CustomSymbol<N, A>) -> Self {
+        value.data
+    }
+}
+
 pub struct SymbolParsingError;
 
 impl Debug for SymbolParsingError {

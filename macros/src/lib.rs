@@ -103,7 +103,7 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
 
             pub const fn parse_chars(chars: &[char]) -> core::result::Result<
                 #crate_path::CustomSymbol<#alphabet_len, #name>,
-                SymbolParsingError
+                #crate_path::SymbolParsingError
             > {
                 let mut i = 0;
                 let mut data: u128 = 0;
@@ -117,10 +117,7 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
                     };
                     i += 1;
                 }
-                Ok(CustomSymbol {
-                    _alphabet: PhantomData,
-                    data,
-                })
+                Ok(#crate_path::CustomSymbol::from_raw(data))
             }
 
             pub const fn parse_chars_panic(chars: &[char]) -> #crate_path::CustomSymbol<#alphabet_len, #name> {
