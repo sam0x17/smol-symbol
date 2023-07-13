@@ -1,5 +1,5 @@
-//! This crate houses the [`s!`] macro, used to create `Symbol`s at compile-time from a
-//! provided ident.
+//! This crate houses the [`s!`] macro, used to create `Symbol` / `CustomSymbol` instances at
+//! const-eval time from a provided ident and (if applicable) `Alphabet`.
 
 use derive_syn_parse::Parse;
 use proc_macro::TokenStream;
@@ -20,22 +20,28 @@ struct SymbolInput {
     alphabet_path: Option<TypePath>,
 }
 
-/// Generates a `Symbol` at compile-time from the provided ident.
+/// Generates a `Symbol` or `CustomSymbol` at const-eval time based on the provided ident and
+/// (optional) path to a custom `Alphabet`., e.g.:
 ///
-/// Your ident should be constrained to a minimum of one character and a maximum of 25
-/// characters long, and may only use an alphabet of lowercase a-z as well as `_`. No other
-/// characters are allowed, and specifying other characters or breaking any of these rules will
-/// result in a compile error.
+/// ```ignore
+/// let my_sym = s!(hello_world); // uses Symbol / DefaultAlphabet
+/// let my_custom_sym = s!(OtHeR, MyCustomAlphabet); // uses the custom alphabet `MyCustomAlphabet`
+/// ```
+///
+/// Your symbol ident should be constrained to a minimum of one character and should be no
+/// longer than the `MAX_SYMBOL_LEN` for your chosen alphabet (this is 25 for `DefaultAlphabet`).
 ///
 /// At runtime, each unique`Symbol` is represented internally as a unique [`u128`] that encodes
-/// the bits of the symbol (5 bits per character), and enough information is preserved in this
-/// representation that the [`u128`] can be converted back into a [`String`] during at runtime,
-/// if desired.
+/// the bits of the symbol (5 bits per character when using `DefaultAlphabet`), and enough
+/// information is preserved in this representation that the [`u128`] can be converted back
+/// into a [`String`] during at runtime, if desired. In other words, encoding your symbol as a
+/// [`u128`] is a non-destructive action that can be reversed.
 ///
 /// These are great for scenarios where you need a human-readable globally unique identifier.
-/// The `Symbol` type is intended to be similar to the `Symbol` type in the Crystal programming
-/// language, with the additional capability that `Symbol`s can be created and runtime in
-/// addition to compile-time.
+/// The `Symbol` / `CustomSymbol` type is intended to be very loosely similar to the `Symbol`
+/// type in the Crystal programming language, though it is strictly much more powerful, with
+/// the additional capability that `Symbol`s can be created and runtime in addition to
+/// compile-time, and can be directly sorted, hashed, etc., in lexically consistent way.
 #[proc_macro]
 pub fn s(tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as SymbolInput);
@@ -50,6 +56,7 @@ pub fn s(tokens: TokenStream) -> TokenStream {
     .into()
 }
 
+/// Used to parse input to [`custom_alphabet`].
 #[derive(Parse)]
 struct CustomAlphabetInput {
     name: Ident,
@@ -57,6 +64,25 @@ struct CustomAlphabetInput {
     alphabet: Ident,
 }
 
+/// Allows you to define a custom alphabet for use with `CustomSymbol` and the [`s!`] macro.
+/// The macro takes two idents separated by a comma as input. The first ident should be the
+/// name of the alphabet you would like to create, and the second ident should contain all of
+/// the characters you would like to use in your alphabet (symbols must be comprised only of
+/// characters that are valid in an
+/// [ident](https://doc.rust-lang.org/reference/identifiers.html).
+///
+/// For example, this would define `MyAlphabet` to consist of uppercase A-Z, lowercase a-z, and
+/// digits, and would have a resulting `MAX_SYMBOL_LEN` of 21 characters long:
+///
+/// ```ignore
+/// custom_alphabet!(MyAlphabet, abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789);
+///
+/// let my_sym = s!(SoMeThInG33, MyAlphabet);
+/// ```
+///
+/// It is worth noting that in general, the longer an alphabet is, the lower the
+/// `MAX_SYMBOL_LEN` bound will be for that alphabet, since a [`u128`] is always used as the
+/// backing for `CustomSymbol`.
 #[proc_macro]
 pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
     let crate_path = match std::env::var("CARGO_PKG_NAME") {
