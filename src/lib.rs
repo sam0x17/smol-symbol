@@ -128,27 +128,31 @@ impl<const N: usize, A: Alphabet<N>> From<CustomSymbol<N, A>> for u128 {
     }
 }
 
+/// Thrown when an attempt was made to parse an invalid [`CustomSymbol`] / [`Symbol`]. This can
+/// occur when the underlying ident or string is too long, too short, or contains invalid
+/// character (characters not in the specified [`Alphabet`]).
 pub struct SymbolParsingError;
+
+pub const PARSING_ERROR_MSG: &'static str =
+    "To be a valid `Symbol` or `CustomSymbol`, the provided ident or string must be at least one \
+    character long, at most `Alphabet::MAX_SYMBOL_LEN` characters long, and consist only of \
+    characters that are included in the `Alphabet`. No other characters are permitted, nor is \
+    whitespace of any kind.";
 
 impl Debug for SymbolParsingError {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        f.write_str(
-            "To be a valid `Symbol`, the provided string must be at least one character long, \
-            at most 25 characters long, and consist only of lowercase a-z characters or `_`. \
-            No other characters are permitted, nor is whitespace of any kind.",
-        )
+        f.write_str(PARSING_ERROR_MSG)
     }
 }
 
 impl<const N: usize, A: Alphabet<N>> TryFrom<&str> for CustomSymbol<N, A> {
     type Error = SymbolParsingError;
 
-    /// Attempts to interpret the provided string as a valid [`Symbol`]. The usual parsing
-    /// rules for [`Symbol`]s apply, namely:
+    /// Attempts to interpret the provided string as a valid [`Symbol`] / [`CustomSymbol`]. The usual parsing
+    /// rules for [`CustomSymbol`] apply, namely:
     /// - At least one character
-    /// - At most 25 characters
-    /// - only lowercase a-z and `_` allowed
-    /// - no whitespace
+    /// - At most `Alphabet::MAX_SYMBOL_LEN` characters
+    /// - Only characters that are contained in the [`Alphabet`].
     ///
     /// If any of these requirements are violated, a generic [`SymbolParsingError`] is returned
     /// and parsing will abort.
@@ -223,7 +227,9 @@ impl<const N: usize, A: Alphabet<N>> Display for CustomSymbol<N, A> {
     }
 }
 
-pub const fn ceil_log2(x: usize) -> usize {
+/// Internal function used to calculate the `ceil(log2(x))` when determining the
+/// `MAX_SYMBOL_LEN` of an [`Alphabet`].
+const fn ceil_log2(x: usize) -> usize {
     let mut n = x;
     let mut log = 0;
     while n > 1 {
