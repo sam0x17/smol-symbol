@@ -20,9 +20,12 @@
 //!
 //! The [`Symbol`] type can also be turned into a [`String`] via a convenient [`Into<String>`].
 //!
-//! We also provide the ability to define custom alphabets via a handy [`custom_alphabet!`]
-//! macro, allowing you to alter these restrictions directly (smaller alphabet = larger max
-//! length for a symbol).
+//! We also provide the ability to define custom alphabets that use the more general
+//! [`CustomSymbol`] type via a handy [`custom_alphabet!`] macro, allowing you to alter these
+//! restrictions directly (smaller alphabet = larger max length for a symbol) and add support
+//! for other languages or less restrictive character sets. The only invariant that can't be
+//! customized at the moment is [`CustomSymbol`] will always use a [`u128`] as its backing data
+//! store.
 //!
 //! ### Example
 #![doc = docify::embed_run!("tests/tests.rs", symbol_type_example)]
