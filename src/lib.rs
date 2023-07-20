@@ -1,7 +1,7 @@
 //! # smol-symbol 💠
 //!
 //! [![Crates.io](https://img.shields.io/crates/v/smol-symbol)](https://crates.io/crates/smol-symbol)
-//! [![docs.rs](https://img.shields.io/docsrs/smol-symbol?label=docs)](https://docs.rs/smol-symbol/latest/smol-symbol/)
+//! [![docs.rs](https://img.shields.io/docsrs/smol-symbol?label=docs)](https://docs.rs/smol-symbol/latest/smol_symbol/)
 //! [![Build Status](https://img.shields.io/github/actions/workflow/status/sam0x17/smol-symbol/ci.yaml)](https://github.com/sam0x17/smol-symbol/actions/workflows/ci.yaml?query=branch%3Amain)
 //! [![MIT License](https://img.shields.io/github/license/sam0x17/smol-symbol)](https://github.com/sam0x17/smol-symbol/blob/main/LICENSE)
 //!
