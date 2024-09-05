@@ -123,7 +123,7 @@ impl<const N: usize, A: Alphabet<N>> CustomSymbol<N, A> {
             rem /= char_size;
             result.push(A::ALPHABET[it as usize - 1]);
         }
-        result.chars().rev().collect()
+        result
     }
 }
 
@@ -166,7 +166,7 @@ impl<const N: usize, A: Alphabet<N>> TryFrom<&str> for CustomSymbol<N, A> {
             return Err(SymbolParsingError {});
         }
         let mut data: u128 = 0;
-        for c in value.chars() {
+        for c in value.chars().rev() {
             data *= A::LEN_U218 + 1;
             data += A::invert_char(c)?;
         }
