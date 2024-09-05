@@ -112,6 +112,19 @@ impl<const N: usize, A: Alphabet<N>> CustomSymbol<N, A> {
             data,
         }
     }
+
+    pub fn name(&self) -> String {
+        let mut rem = self.data;
+        let char_size = (A::ALPHABET.len() + 1) as u128;
+        let mut result = String::with_capacity(A::MAX_SYMBOL_LEN);
+        while rem != 0 {
+            let it = rem % char_size;
+            rem -= it;
+            rem /= char_size;
+            result.push(A::ALPHABET[it as usize - 1]);
+        }
+        result.chars().rev().collect()
+    }
 }
 
 impl<const N: usize, A: Alphabet<N>> From<CustomSymbol<N, A>> for u128 {
@@ -182,16 +195,7 @@ impl<const N: usize, A: Alphabet<N>> TryFrom<&String> for CustomSymbol<N, A> {
 
 impl<const N: usize, A: Alphabet<N>> From<CustomSymbol<N, A>> for String {
     fn from(value: CustomSymbol<N, A>) -> Self {
-        let mut rem = value.data;
-        let char_size = (A::ALPHABET.len() + 1) as u128;
-        let mut result = String::with_capacity(A::MAX_SYMBOL_LEN);
-        while rem != 0 {
-            let it = rem % char_size;
-            rem -= it;
-            rem /= char_size;
-            result.push(A::ALPHABET[it as usize - 1]);
-        }
-        result.chars().rev().collect()
+        value.name()
     }
 }
 
@@ -212,7 +216,7 @@ impl<const N: usize, A: Alphabet<N>> Debug for CustomSymbol<N, A> {
 
 impl<const N: usize, A: Alphabet<N>> Display for CustomSymbol<N, A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        let value: String = From::<CustomSymbol<N, A>>::from(*self);
+        let value: String = self.name();
         f.write_str(&value)
     }
 }
