@@ -39,7 +39,10 @@ docify::compile_markdown!("README.docify.md", "README.md");
 
 extern crate alloc;
 
-use alloc::{string::{String, ToString as _}, vec::Vec};
+use alloc::{
+    string::{String, ToString as _},
+    vec::Vec,
+};
 use core::{
     fmt::{Debug, Display, Formatter, Result, Write},
     marker::PhantomData,
