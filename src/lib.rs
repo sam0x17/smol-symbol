@@ -116,6 +116,10 @@ impl<const N: usize, A: Alphabet<N>> CustomSymbol<N, A> {
         }
     }
 
+    /// Converts this [`Symbol`] or [`CustomSymbol`] into a human-readable [`String`]
+    /// representation. This is only possible because the [`u128`] used as the backing for
+    /// [`CustomSymbol`] encodes all bits of information for each character in the
+    /// [`CustomSymbol`].
     pub fn name(&self) -> String {
         let mut rem = self.data;
         let char_size = (A::ALPHABET.len() + 1) as u128;
