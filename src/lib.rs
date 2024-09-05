@@ -42,7 +42,8 @@ extern crate alloc;
 use alloc::{string::String, vec::Vec};
 use core::{
     fmt::{Debug, Display, Formatter, Result},
-    marker::PhantomData, hash::Hash,
+    hash::Hash,
+    marker::PhantomData,
 };
 
 pub use smol_symbol_macros::*;
