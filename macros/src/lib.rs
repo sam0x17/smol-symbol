@@ -146,7 +146,7 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
             pub const fn parse_chars_panic(chars: &[char]) -> #crate_path::CustomSymbol<#alphabet_len, #name> {
                 match Self::parse_chars(chars) {
                     Ok(sym) => sym,
-                    Err(err) => std::panic::panic_any(#crate_path::PARSING_ERROR_MSG),
+                    Err(err) => panic!("{}", #crate_path::PARSING_ERROR_MSG),
                 }
             }
         }
