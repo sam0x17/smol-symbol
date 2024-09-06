@@ -41,7 +41,8 @@ extern crate alloc;
 
 use alloc::string::String;
 use core::{
-    fmt::{Debug, Display, Formatter, Result, Write},
+    fmt::{Debug, Display, Formatter, Result},
+    hash::Hash,
     marker::PhantomData,
 };
 
@@ -96,7 +97,7 @@ custom_alphabet!(DefaultAlphabet, abcdefghijklmnopqrstuvwxyz_);
 /// using [`custom_alphabet!`].
 ///
 /// Typically to create a [`Symbol`] or [`CustomSymbol`], you will want to use the [`s!`] macro.
-#[derive(Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Copy, Clone)]
 #[repr(transparent)]
 pub struct CustomSymbol<const N: usize, A: Alphabet<N>> {
     _alphabet: PhantomData<A>,
@@ -128,6 +129,28 @@ impl<const N: usize, A: Alphabet<N>> CustomSymbol<N, A> {
             result.push(A::ALPHABET[it as usize - 1]);
         }
         result
+    }
+}
+
+impl<const N: usize, A: Alphabet<N>> PartialEq for CustomSymbol<N, A> {
+    fn eq(&self, other: &Self) -> bool {
+        self.data == other.data
+    }
+}
+impl<const N: usize, A: Alphabet<N>> Eq for CustomSymbol<N, A> {}
+impl<const N: usize, A: Alphabet<N>> Hash for CustomSymbol<N, A> {
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+        self.data.hash(state);
+    }
+}
+impl<const N: usize, A: Alphabet<N>> PartialOrd for CustomSymbol<N, A> {
+    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl<const N: usize, A: Alphabet<N>> Ord for CustomSymbol<N, A> {
+    fn cmp(&self, other: &Self) -> core::cmp::Ordering {
+        self.data.cmp(&other.data)
     }
 }
 
