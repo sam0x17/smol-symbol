@@ -165,7 +165,7 @@ impl<const N: usize, A: Alphabet<N>> From<CustomSymbol<N, A>> for u128 {
 /// character (characters not in the specified [`Alphabet`]).
 pub struct SymbolParsingError;
 
-pub const PARSING_ERROR_MSG: &'static str =
+pub const PARSING_ERROR_MSG: &str =
     "To be a valid `Symbol` or `CustomSymbol`, the provided ident or string must be at least one \
     character long, at most `Alphabet::MAX_SYMBOL_LEN` characters long, and consist only of \
     characters that are included in the `Alphabet`. No other characters are permitted, nor is \
