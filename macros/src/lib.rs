@@ -6,12 +6,6 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, parse_quote, Ident, Token, TypePath};
 
-fn _bad_symbol_error() -> TokenStream {
-    return "compile_error!(\"s!() takes a single ident, constrained to a maximum of 25 characters long using an \
-            alphabet of lowercase a-z as well as `_`. No other characters are allowed, and you must specify at \
-            least one character.\")".parse().unwrap();
-}
-
 #[derive(Parse)]
 struct SymbolInput {
     ident: Ident,
@@ -104,7 +98,7 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
     let alphabet_map_u128_clone = alphabet_map_u128.clone();
     quote! {
         #[derive(Copy, Clone, PartialEq, Eq)]
-        pub struct #name {}
+        pub struct #name;
 
         impl #crate_path::Alphabet<#alphabet_len> for #name {
             const ALPHABET: [char; #alphabet_len] = [#(#alphabet),*];
@@ -112,7 +106,7 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
             fn invert_char(c: char) -> core::result::Result<u128, #crate_path::SymbolParsingError> {
                 let i = match c {
                     #(#alphabet_map_u128),*,
-                    _ => return Err(#crate_path::SymbolParsingError {}),
+                    _ => return Err(#crate_path::SymbolParsingError),
                 };
                 Ok(i as u128)
             }
@@ -122,7 +116,7 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
             pub const fn invert_char(c: char) -> core::result::Result<u128, #crate_path::SymbolParsingError> {
                 let i = match c {
                     #(#alphabet_map_u128_clone),*,
-                    _ => return Err(#crate_path::SymbolParsingError {}),
+                    _ => return Err(#crate_path::SymbolParsingError),
                 };
                 Ok(i as u128)
             }
@@ -131,9 +125,9 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
                 #crate_path::CustomSymbol<#alphabet_len, #name>,
                 #crate_path::SymbolParsingError
             > {
-                let mut i = 0;
+                let mut i = chars.len() - 1;
                 let mut data: u128 = 0;
-                while i < chars.len() {
+                loop {
                     let c = chars[i];
                     let inverted = Self::invert_char(c);
                     data *= #name::LEN_U218 + 1;
@@ -141,7 +135,10 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
                         Ok(val) => val,
                         Err(err) => return Err(err),
                     };
-                    i += 1;
+                    if i == 0 {
+                        break;
+                    }
+                    i -= 1;
                 }
                 Ok(#crate_path::CustomSymbol::from_raw(data))
             }

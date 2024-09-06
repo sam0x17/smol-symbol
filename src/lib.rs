@@ -39,7 +39,7 @@ docify::compile_markdown!("README.docify.md", "README.md");
 
 extern crate alloc;
 
-use alloc::{string::String, vec::Vec};
+use alloc::string::String;
 use core::{
     fmt::{Debug, Display, Formatter, Result},
     hash::Hash,
@@ -118,8 +118,17 @@ impl<const N: usize, A: Alphabet<N>> CustomSymbol<N, A> {
     /// representation. This is only possible because the [`u128`] used as the backing for
     /// [`CustomSymbol`] encodes all bits of information for each character in the
     /// [`CustomSymbol`].
-    pub fn to_string(&self) -> String {
-        self.into()
+    pub fn name(&self) -> String {
+        let mut rem = self.data;
+        let char_size = (A::ALPHABET.len() + 1) as u128;
+        let mut result = String::with_capacity(A::MAX_SYMBOL_LEN);
+        while rem != 0 {
+            let it = rem % char_size;
+            rem -= it;
+            rem /= char_size;
+            result.push(A::ALPHABET[it as usize - 1]);
+        }
+        result
     }
 }
 
@@ -156,7 +165,7 @@ impl<const N: usize, A: Alphabet<N>> From<CustomSymbol<N, A>> for u128 {
 /// character (characters not in the specified [`Alphabet`]).
 pub struct SymbolParsingError;
 
-pub const PARSING_ERROR_MSG: &'static str =
+pub const PARSING_ERROR_MSG: &str =
     "To be a valid `Symbol` or `CustomSymbol`, the provided ident or string must be at least one \
     character long, at most `Alphabet::MAX_SYMBOL_LEN` characters long, and consist only of \
     characters that are included in the `Alphabet`. No other characters are permitted, nor is \
@@ -184,7 +193,7 @@ impl<const N: usize, A: Alphabet<N>> TryFrom<&str> for CustomSymbol<N, A> {
             return Err(SymbolParsingError {});
         }
         let mut data: u128 = 0;
-        for c in value.chars() {
+        for c in value.chars().rev() {
             data *= A::LEN_U218 + 1;
             data += A::invert_char(c)?;
         }
@@ -213,19 +222,7 @@ impl<const N: usize, A: Alphabet<N>> TryFrom<&String> for CustomSymbol<N, A> {
 
 impl<const N: usize, A: Alphabet<N>> From<CustomSymbol<N, A>> for String {
     fn from(value: CustomSymbol<N, A>) -> Self {
-        let mut n = value.data;
-        let mut chars: Vec<char> = Vec::new();
-        let len = (A::ALPHABET.len() + 1) as u128;
-        loop {
-            let i = n % len;
-            n -= i;
-            n /= len;
-            chars.push(A::ALPHABET[i as usize - 1]);
-            if n == 0 {
-                break;
-            }
-        }
-        chars.into_iter().rev().collect()
+        value.name()
     }
 }
 
@@ -246,7 +243,8 @@ impl<const N: usize, A: Alphabet<N>> Debug for CustomSymbol<N, A> {
 
 impl<const N: usize, A: Alphabet<N>> Display for CustomSymbol<N, A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        f.write_str(&self.to_string())
+        let value: String = self.name();
+        f.write_str(&value)
     }
 }
 
