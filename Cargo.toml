@@ -3,7 +3,7 @@ members = ["macros"]
 
 [package]
 name = "smol-symbol"
-version = "0.1.7"
+version = "0.2.0"
 edition = "2021"
 authors = ["sam0x17"]
 description = "Provides compile-time globally unique, 25-character, 128-bit symbols similar to the Symbol type in Crystal Lang."
@@ -13,7 +13,7 @@ homepage = "https://sam0x17.dev"
 license = "MIT"
 
 [dependencies]
-smol-symbol-macros = { path = "macros", version = "0.1.7" }
+smol-symbol-macros = { path = "macros", version = "0.2.0" }
 docify = "0.2"
 
 [features]
