@@ -104,7 +104,7 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
     let alphabet_map_u128_clone = alphabet_map_u128.clone();
     quote! {
         #[derive(Copy, Clone, PartialEq, Eq)]
-        pub struct #name {}
+        pub struct #name;
 
         impl #crate_path::Alphabet<#alphabet_len> for #name {
             const ALPHABET: [char; #alphabet_len] = [#(#alphabet),*];
@@ -131,9 +131,9 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
                 #crate_path::CustomSymbol<#alphabet_len, #name>,
                 #crate_path::SymbolParsingError
             > {
-                let mut i = 0;
+                let mut i = chars.len() - 1;
                 let mut data: u128 = 0;
-                while i < chars.len() {
+                loop {
                     let c = chars[i];
                     let inverted = Self::invert_char(c);
                     data *= #name::LEN_U218 + 1;
@@ -141,7 +141,10 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
                         Ok(val) => val,
                         Err(err) => return Err(err),
                     };
-                    i += 1;
+                    if i == 0 {
+                        break;
+                    }
+                    i -= 1;
                 }
                 Ok(#crate_path::CustomSymbol::from_raw(data))
             }

@@ -92,7 +92,7 @@ fn test_roundtrip() {
 fn test_debug() {
     assert_eq!(
         format!("{:?}", s!(this_is_a_symbol)),
-        "Symbol { data: 103472738014991221645200, symbol: \"this_is_a_symbol\" }"
+        "Symbol { data: 63918987372445988790468, symbol: \"this_is_a_symbol\" }"
     );
 }
 
