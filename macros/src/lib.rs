@@ -6,12 +6,6 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, parse_quote, Ident, Token, TypePath};
 
-fn _bad_symbol_error() -> TokenStream {
-    return "compile_error!(\"s!() takes a single ident, constrained to a maximum of 25 characters long using an \
-            alphabet of lowercase a-z as well as `_`. No other characters are allowed, and you must specify at \
-            least one character.\")".parse().unwrap();
-}
-
 #[derive(Parse)]
 struct SymbolInput {
     ident: Ident,
@@ -112,7 +106,7 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
             fn invert_char(c: char) -> core::result::Result<u128, #crate_path::SymbolParsingError> {
                 let i = match c {
                     #(#alphabet_map_u128),*,
-                    _ => return Err(#crate_path::SymbolParsingError {}),
+                    _ => return Err(#crate_path::SymbolParsingError),
                 };
                 Ok(i as u128)
             }
@@ -122,7 +116,7 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
             pub const fn invert_char(c: char) -> core::result::Result<u128, #crate_path::SymbolParsingError> {
                 let i = match c {
                     #(#alphabet_map_u128_clone),*,
-                    _ => return Err(#crate_path::SymbolParsingError {}),
+                    _ => return Err(#crate_path::SymbolParsingError),
                 };
                 Ok(i as u128)
             }
@@ -152,7 +146,7 @@ pub fn custom_alphabet(tokens: TokenStream) -> TokenStream {
             pub const fn parse_chars_panic(chars: &[char]) -> #crate_path::CustomSymbol<#alphabet_len, #name> {
                 match Self::parse_chars(chars) {
                     Ok(sym) => sym,
-                    Err(err) => panic!("{}", #crate_path::PARSING_ERROR_MSG),
+                    Err(err) => std::panic::panic_any(#crate_path::PARSING_ERROR_MSG),
                 }
             }
         }
